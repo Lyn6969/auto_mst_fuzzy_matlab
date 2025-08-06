@@ -1,0 +1,106 @@
+# MATLAB files
+*.asv
+*.m~
+*.autosave
+*.mat
+*.fig
+*.slx.autosave
+*.slxc
+
+# Simulink files
+*.slxc
+*.slx.original
+
+# Data files
+Data_Sim/
+Data_Exp/
+
+# Compiled MEX files
+*.mex*
+*.dll
+*.dylib
+*.so
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+*.txt
+*.png
+*.csv
+*.mat
+*.pdf
+*.docx
+*.xlsx
+*.pptx
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+*.lzma
+*.lz
+*.zst
+*.z
+*.Z
+*.jar
+*.war
+*.ear
+*.sar
+*.mar
+*.ear
+*.war
+*.sar
+*.mar
+*.ear
+*.war
+*.sar
+*.json
+*.md
+*.tex
