@@ -30,23 +30,23 @@ classdef FuzzyLogicController < handle
             % 创建模糊逻辑控制器的模糊推理系统
             fis = mamfis('Name', 'FLC_Threshold_Controller');
             
-            % 添加输入变量1: 局部有序度 p_i [0, 1]
-            fis = addInput(fis, [0 1], 'Name', 'p_i');
-            fis = addMF(fis, 'p_i', 'trapmf', [0 0 0.15 0.35], 'Name', 'Low');
-            fis = addMF(fis, 'p_i', 'trimf', [0.25 0.5 0.75], 'Name', 'Medium');
-            fis = addMF(fis, 'p_i', 'trapmf', [0.65 0.85 1 1], 'Name', 'High');
+            % 添加输入变量1: 局部有序度 p_i [0.8, 1] (基于实际数据分布调整)
+            fis = addInput(fis, [0.7 1], 'Name', 'p_i');
+            fis = addMF(fis, 'p_i', 'trapmf', [0.7 0.7 0.85 0.95], 'Name', 'Low');
+            fis = addMF(fis, 'p_i', 'trimf', [0.9 0.95 1.0], 'Name', 'Medium'); 
+            fis = addMF(fis, 'p_i', 'trapmf', [0.95 1.0 1.0 1.0], 'Name', 'High');
             
-            % 添加输入变量2: 邻域运动显著性均值 avg(M_j) [0, 80] (根据实际数据范围调整)
-            fis = addInput(fis, [0 80], 'Name', 'avg_Mj');
-            fis = addMF(fis, 'avg_Mj', 'trapmf', [0 0 5 15], 'Name', 'Low');
-            fis = addMF(fis, 'avg_Mj', 'trimf', [10 25 40], 'Name', 'Medium');
-            fis = addMF(fis, 'avg_Mj', 'trapmf', [35 50 80 80], 'Name', 'High');
+            % 添加输入变量2: 邻域运动显著性均值 avg(M_j) [0, 20] (基于实际数据分布调整)
+            fis = addInput(fis, [0 20], 'Name', 'avg_Mj');
+            fis = addMF(fis, 'avg_Mj', 'trapmf', [0 0 3 8], 'Name', 'Low');
+            fis = addMF(fis, 'avg_Mj', 'trimf', [5 10 15], 'Name', 'Medium');
+            fis = addMF(fis, 'avg_Mj', 'trapmf', [12 15 20 20], 'Name', 'High');
             
-            % 添加输入变量3: 邻域运动显著性方差 var(M_j) [0, 100] (根据实际数据范围调整)
+            % 添加输入变量3: 邻域运动显著性方差 var(M_j) [0, 100] (基于实际数据分布调整)
             fis = addInput(fis, [0 100], 'Name', 'var_Mj');
-            fis = addMF(fis, 'var_Mj', 'trapmf', [0 0 10 25], 'Name', 'Low');
-            fis = addMF(fis, 'var_Mj', 'trimf', [20 40 60], 'Name', 'Medium');
-            fis = addMF(fis, 'var_Mj', 'trapmf', [50 70 100 100], 'Name', 'High');
+            fis = addMF(fis, 'var_Mj', 'trapmf', [0 0 15 30], 'Name', 'Low');
+            fis = addMF(fis, 'var_Mj', 'trimf', [20 50 70], 'Name', 'Medium');
+            fis = addMF(fis, 'var_Mj', 'trapmf', [60 80 100 100], 'Name', 'High');
             
             % 添加输出变量: 阈值变化量 ΔC [-5, 5]
             fis = addOutput(fis, [-5 5], 'Name', 'delta_C');
@@ -102,8 +102,27 @@ classdef FuzzyLogicController < handle
             % 主计算函数
             % 输入: inputs = [p_i, avg_mj, var_mj]
             % 输出: delta_c - 阈值变化量
-            
-            delta_c = evalfis(obj.fis, inputs);
+
+            % 输入越界处理 - 将输入值限制在定义范围内
+            clamped_inputs = inputs;
+
+            % p_i: [0.7, 1.0]
+            clamped_inputs(1) = max(0.7, min(inputs(1), 1.0));
+
+            % avg_Mj: [0, 20]
+            clamped_inputs(2) = max(0, min(inputs(2), 20));
+
+            % var_Mj: [0, 100]
+            clamped_inputs(3) = max(0, min(inputs(3), 100));
+
+            % 记录越界情况（用于调试）
+            if any(inputs ~= clamped_inputs)
+                fprintf('FLC输入越界: 原始[%.3f, %.3f, %.3f] -> 限制后[%.3f, %.3f, %.3f]\n', ...
+                    inputs(1), inputs(2), inputs(3), ...
+                    clamped_inputs(1), clamped_inputs(2), clamped_inputs(3));
+            end
+
+            delta_c = evalfis(obj.fis, clamped_inputs);
         end
         
         function new_threshold = update_threshold(obj, robot, neighbors, g_state)

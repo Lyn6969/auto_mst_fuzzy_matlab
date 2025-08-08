@@ -1,5 +1,5 @@
 % CE的纯sim实验 with FLC
-clc;
+clc
 clear;
 close all;
 
@@ -17,7 +17,7 @@ isShowAnimitation = 0; % 是否显示实时仿真动画
 
 % 机器人基本参数设置
 G.cycTime = 0.2; % sec, 状态更新周期(经测试最短约为0.1s)
-G.v0 = 12; % mm/s，机器人中心线速度可取值：{0, 5, 10, 12, 15, 18, 20, 24};
+G.v0 = 12;% mm/s，机器人中心线速度可取值：{0, 5, 10, 12, 15, 18, 20, 24};
 G.maxRotRate = 12*1.91; % deg/s,机器人最大角速度
 G.r_sense = 1000; % 机器人感知半径
 G.R_escape = 300 + zeros(G.maxID,1);  % 一般个体的预警半径，设定是足够近之后，就会激活逃逸行为
@@ -30,7 +30,7 @@ G.Dsen = 1000;                 % 个体感知距离，即吸引力作用距离�
 G.weight_rep = 8;              % 位置协同中排斥项的权重
 G.weight_att = 0.01;           % 位置协同中吸引项的权重：0=无吸引作用
 G.cj_threshold = 0.01;            % 初始ms阈值（将被FLC动态调整）
-G.weight_cj = 300;             % cj的尺度
+G.weight_cj = 100;             % cj的尺度
 G.deac_threshold = 0.2;        % 取消激活阈值
 G.noise_mov = 0;               % 运动噪声0/0.1
 G.max_neighbors = 7;           % 拓扑交互个体数目

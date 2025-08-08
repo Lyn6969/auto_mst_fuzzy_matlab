@@ -1,6 +1,7 @@
 % CE的纯sim实验
-clc;
+clc
 clear;
+close
 
 %% ------实验基本设置-----
 
@@ -28,9 +29,9 @@ G.Drep = 300;                  % 排斥力作用距离，mm
 G.Dsen = 1000;                 % 个体感知距离，即吸引力作用距离，mm
 G.weight_rep = 8;              % 位置协同中排斥项的权重
 G.weight_att = 0.01;           % 位置协同中吸引项的权重：0=无吸引作用
-G.cj_threshold = 35;            % ms阈值
+G.cj_threshold = 0.001;            % ms阈值
 G.weight_cj = 100;             % cj的尺度
-G.deac_threshold = 0.2;        % 取消激活阈值
+G.deac_threshold = 0.05;        % 取消激活阈值
 G.noise_mov = 0;               % 运动噪声0/0.1
 G.max_neighbors = 7;           % 拓扑交互个体数目
 
@@ -43,6 +44,13 @@ G.v0_hawk = 24;              % 追逐者速度
 
 %----实验统计量-------
 G.maxcj = zeros(G.maxSimSteps,1);
+% 预分配激活相关数组，保证维度一致性
+G.activatedCount = zeros(G.maxSimSteps,1);    % 每步激活个体数量
+G.activatedIDs = cell(G.maxSimSteps,1);       % 每步激活个体ID列表
+G.activatedSrcIDs = cell(G.maxSimSteps,1);    % 每步激活源ID列表
+G.warnNum = zeros(G.maxSimSteps,1);           % 每步预警个体数量
+G.warnIDs = cell(G.maxSimSteps,1);            % 每步预警个体ID列表
+G.target_dist = zeros(G.maxSimSteps,1);       % 每步目标距离
 
 
 %--实验时间戳-----
@@ -59,7 +67,7 @@ for t = 1:G.maxSimSteps
     [desTurnAngle,desSpeed,G] = algo_mst_ce(G);        % 集群算法
     G = parallelSimRobots_v2(G,desTurnAngle,desSpeed);	% 虚拟个体
     fprintf('sim. steps = %d\n',t);                 % 打印相关信息
-    if G.simStep >= G.attackStep && G.target_dist(end) <= G.R_dead
+    if G.simStep >= G.attackStep && G.target_dist(G.simStep) <= G.R_dead
         break;
     end
     % 动态显示机器人运动数据
@@ -68,20 +76,35 @@ end
 
 
 %% 绘制仿真结果图
-warnTime = find(G.warnNum == 1);
-G.sur_time = G.simStep - warnTime(1,1);
-fprintf('仿真测试结束，结果如图.....\n');
-drawRobotsTraj(G);
+% warnTime = find(G.warnNum == 1);
+% G.sur_time = G.simStep - warnTime(1,1);
+% fprintf('仿真测试结束，结果如图.....\n');
+% drawRobotsTraj(G);
 
-%%  保存仿真数据
+%% 绘制运动显著性统计图
+fprintf('绘制运动显著性统计图...\n');
+drawMotionSaliencyStats_Standard(G);
 
+
+%% 分析和保存激活数据
+fprintf('分析激活个体数据...\n');
+activationAnalysis = analyzeActivationData(G);
+
+%% 保存详细的激活分析结果
 savefileDir = "./Data_Sim/ce/" + dateString;
 if ~exist(savefileDir, 'dir')
     mkdir(savefileDir);
 end
-% 组合文件名并保存仿真数据
+
+% 保存仿真数据
 fileName = savefileDir + "/SimData_ce_C" + num2str(G.cj_threshold) + "_ali" + num2str(G.weight_align) + "_rep" + num2str(G.weight_rep) + "_att" + num2str(G.weight_att) + "_N" + num2str(G.maxID) + "_" + dateString + '.mat';
 save(fileName, 'G');
+
+% 保存激活分析数据为CSV格式 (便于后续分析)
+csvFileName = savefileDir + "/ActivationAnalysis_" + dateString + ".csv";
+saveActivationAnalysisToCSV(activationAnalysis, csvFileName);
+
+fprintf('数据已保存到: %s\n', savefileDir);
 
 
 
