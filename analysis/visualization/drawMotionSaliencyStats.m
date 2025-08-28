@@ -56,58 +56,36 @@ function drawMotionSaliencyStats(G)
     title('个体观察到的运动显著性范围');
     grid on;
     
-    %% 子图4: 邻居数量时间序列
+    %% 子图4: 原始运动显著性方差
     subplot(2, 3, 4);
     hold on;
-    for i = preyList
-        plot(valid_steps, G.flc_data.ms_count(valid_steps, i), 'LineWidth', 0.8);
+    if isfield(G.flc_data, 'var_mj_raw')
+        for i = preyList
+            plot(valid_steps, G.flc_data.var_mj_raw(valid_steps, i), 'LineWidth', 0.8, 'Color', [0.8 0.2 0.2 0.5]);
+        end
+        mean_var_raw = mean(G.flc_data.var_mj_raw(valid_steps, preyList), 2);
+        plot(valid_steps, mean_var_raw, 'r-', 'LineWidth', 2, 'DisplayName', 'Mean Raw Var');
+    else
+        text(0.5, 0.5, '无原始方差数据', 'HorizontalAlignment', 'center');
     end
-    % 绘制平均值
-    mean_ms_count = mean(G.flc_data.ms_count(valid_steps, preyList), 2);
-    plot(valid_steps, mean_ms_count, 'k-', 'LineWidth', 2, 'DisplayName', 'Mean');
+    xlabel('仿真步数');
+    ylabel('原始方差');
+    title('运动显著性原始方差');
+    grid on;
+
+    %% 子图5: 对数变换后的运动显著性方差
+    subplot(2, 3, 5);
+    hold on;
+    for i = preyList
+        plot(valid_steps, G.flc_data.var_mj(valid_steps, i), 'LineWidth', 0.8, 'Color', [0.2 0.8 0.2 0.5]);
+    end
+    mean_var_log = mean(G.flc_data.var_mj(valid_steps, preyList), 2);
+    plot(valid_steps, mean_var_log, 'g-', 'LineWidth', 2, 'DisplayName', 'Mean Log-Transformed Var');
     
     xlabel('仿真步数');
-    ylabel('邻居数量');
-    title('个体邻居数量变化');
+    ylabel('对数变换后的方差');
+    title('运动显著性对数变换后方差');
     grid on;
-    
-    %% 子图5: 运动显著性分布统计（箱线图）
-    subplot(2, 3, 5);
-    
-    % 收集所有非零的运动显著性值用于箱线图
-    all_ms_values = [];
-    time_labels = [];
-    
-    % 每隔一定步数采样，避免数据过多
-    sample_interval = max(1, floor(G.simStep / 20));  % 最多采样20个时间点
-    sample_steps = 1:sample_interval:G.simStep;
-    
-    for t_idx = 1:length(sample_steps)
-        t = sample_steps(t_idx);
-        step_values = [];
-        for i = preyList
-            if G.flc_data.ms_count(t, i) > 0  % 只考虑有邻居的情况
-                % 这里我们使用均值作为代表值，实际上可以收集所有原始值
-                step_values = [step_values, G.flc_data.avg_mj(t, i)];
-            end
-        end
-        if ~isempty(step_values)
-            all_ms_values = [all_ms_values, step_values];
-            time_labels = [time_labels, repmat(t, 1, length(step_values))];
-        end
-    end
-    
-    if ~isempty(all_ms_values)
-        % 创建分组箱线图
-        boxplot(all_ms_values, time_labels);
-        xlabel('仿真步数');
-        ylabel('运动显著性值');
-        title('运动显著性分布（箱线图）');
-        grid on;
-    else
-        text(0.5, 0.5, '无有效数据', 'HorizontalAlignment', 'center', 'Units', 'normalized');
-        title('运动显著性分布（箱线图）');
-    end
     
     %% 子图6: 运动显著性与阈值的关系
     subplot(2, 3, 6);
@@ -126,7 +104,11 @@ function drawMotionSaliencyStats(G)
     end
     
     if ~isempty(valid_ms_max)
-        scatter(valid_ms_max, valid_thresholds, 'filled', 'Alpha', 0.6);
+        scatter(valid_ms_max, valid_thresholds, 'filled');
+        h = findobj(gca, 'Type', 'scatter');
+        if ~isempty(h) && isprop(h, 'MarkerFaceAlpha')
+            h.MarkerFaceAlpha = 0.6;
+        end
         xlabel('运动显著性最大值');
         ylabel('当前阈值');
         title('运动显著性最大值 vs 当前阈值');
@@ -145,6 +127,9 @@ function drawMotionSaliencyStats(G)
     %% 添加总体信息文本
     sgtitle(sprintf('运动显著性统计分析 (仿真步数: %d, 个体数量: %d)', ...
         G.simStep, length(preyList)), 'FontSize', 14, 'FontWeight', 'bold');
+    
+    % 计算平均邻居数量
+    mean_ms_count = mean(G.flc_data.ms_count(valid_steps, preyList), 2);
     
     % 计算并显示统计摘要
     fprintf('\n=== 运动显著性统计摘要 ===\n');

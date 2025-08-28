@@ -1,6 +1,10 @@
 function drawRobotsTraj(G)
     %  load ('ExpsData_predation_mAve_N20_20220415T110918.mat'); 
-        % --------- ¼ÆËãÏà¹ØÍ³¼ÆÁ¿ ---------    
+        % è®¾ç½®ä¸­æ–‡å­—ä½“æ”¯æŒ
+        set(0,'DefaultAxesFontName','SimSun');
+        set(0,'DefaultTextFontName','SimSun');
+        
+        % --------- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½ ---------    
         heading = nan * zeros(G.simStep,G.maxID);
         speed = nan * zeros(G.simStep,G.maxID);
         rotRate = nan * zeros(G.simStep,G.maxID);
@@ -19,36 +23,36 @@ function drawRobotsTraj(G)
             end
             flockpos(t,:) = nanmean(posDir(:,[1,2]),1);
         end
-        % ¼ÆËã first catch time
+        % ï¿½ï¿½ï¿½ï¿½ first catch time
         firstCatchTime = inf;
         indx = find(G.target_dist(G.attackStep:end)<=G.R_dead);
         if length(indx)>=1
             firstCatchTime = indx(1);
         end
         
-        % --------- »æÍ¼´°¿ÚÉèÖÃ ---------
-        figure('posi',[200,200,1000,600]);   	% Ö÷´°¿Ú¾ä±ú
-        h_trajAxes = axes('Posi',[0.05 0.08 0.5 0.9]);    	% »úÆ÷ÈË¹ì¼£ÏÔÊ¾
+        % --------- ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ---------
+        figure('posi',[200,200,1000,600]);   	% ï¿½ï¿½ï¿½ï¿½ï¿½Ú¾ï¿½ï¿½
+        h_trajAxes = axes('Posi',[0.05 0.08 0.5 0.9]);    	% ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ì¼£ï¿½ï¿½Ê¾
         xlim([-3000,3000]); ylim([-3000,3000]); 
-    %     h_trajAxes_in = axes('Posi',[0.05 0.08 0.5 0.35]);    	% »úÆ÷ÈË³õÊ¼×´Ì¬ÏÔÊ¾
+    %     h_trajAxes_in = axes('Posi',[0.05 0.08 0.5 0.35]);    	% ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½Ê¼×´Ì¬ï¿½ï¿½Ê¾
     %     xlim([-3000,3000]); ylim([-3000,3000]); 
-        h_Axes1 = axes('Posi',[0.6 0.82 0.35 0.15]);    % »úÆ÷ÈËÏßËÙ¶ÈÏÔÊ¾ 
-        h_Axes2 = axes('Posi',[0.6 0.57 0.35 0.15]);	% »úÆ÷ÈË³¯ÏòÏÔÊ¾ 
-        h_Axes3 = axes('Posi',[0.6 0.33 0.35 0.15]);	% »úÆ÷ÈË½ÇËÙ¶ÈÏÔÊ¾      
-        h_opAxes = axes('Posi',[0.6 0.08 0.35 0.15]);   % ÈºÌåĞò²ÎÁ¿ÏÔÊ¾
+        h_Axes1 = axes('Posi',[0.6 0.82 0.35 0.15]);    % ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½Ê¾ 
+        h_Axes2 = axes('Posi',[0.6 0.57 0.35 0.15]);	% ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ 
+        h_Axes3 = axes('Posi',[0.6 0.33 0.35 0.15]);	% ï¿½ï¿½ï¿½ï¿½ï¿½Ë½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½Ê¾      
+        h_opAxes = axes('Posi',[0.6 0.08 0.35 0.15]);   % Èºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
         
-        % ------------  Ö÷´°¿Ú --------------
-        % »æÖÆ£º»úÆ÷ÈËÎ»ÖÃ¡¢heading¡¢¹ì¼£    
-        r = 30;             % »úÆ÷ÈË°ë¾¶mm
-        arrow_scale = 30;   % »úÆ÷ÈËheading
+        % ------------  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ --------------
+        % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½Ã¡ï¿½headingï¿½ï¿½ï¿½ì¼£    
+        r = 30;             % ï¿½ï¿½ï¿½ï¿½ï¿½Ë°ë¾¶mm
+        arrow_scale = 30;   % ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½heading
         axes(h_trajAxes); box on; grid on; axis equal; 
-        %% ÏÔÊ¾Ä©×´Ì¬Î»ÖÃ
+        %% ï¿½ï¿½Ê¾Ä©×´Ì¬Î»ï¿½ï¿½
     %     for i = 1:G.maxID
     %         pos = G.actor{i}.pose;
     %         vel = G.actor{i}.vel;
     %         tailTraj = G.actor{i}.memory(:,[1,2]);
     %         if ~isnan(pos)
-    %             % ÏÔÊ¾»úÆ÷ÈËÔË¶¯¹ì¼£
+    %             % ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ì¼£
     %             quiver(pos(1),pos(2),arrow_scale*vel(1),arrow_scale*vel(2),0,'k','linewidth',1); 
     %             hold on;
     %             line(tailTraj(:,1),tailTraj(:,2),'linestyle','--','linewidth',0.5,'color',[0.5,0.5,0.5]); 
@@ -57,13 +61,13 @@ function drawRobotsTraj(G)
     %             hold on;
     %         end
     %     end
-    %% ÏÔÊ¾³õÊ¼×´Ì¬Î»ÖÃ
+    %% ï¿½ï¿½Ê¾ï¿½ï¿½Ê¼×´Ì¬Î»ï¿½ï¿½
         for i = 1:G.maxID
             pos = G.actor{i}.memory(1,[1,2]);
             vel =G.actor{i}.memory(1,[3,4]);
             tailTraj = G.actor{i}.memory(:,[1,2]);
             if ~isnan(pos)
-                % ÏÔÊ¾»úÆ÷ÈËÔË¶¯¹ì¼£
+                % ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ì¼£
                 quiver(pos(1),pos(2),arrow_scale*vel(1),arrow_scale*vel(2),0,'k','linewidth',1); 
                 hold on;
                 line(tailTraj(:,1),tailTraj(:,2),'linestyle','--','linewidth',0.5,'color',[0.5,0.5,0.5]); 
@@ -76,47 +80,47 @@ function drawRobotsTraj(G)
          pos = floor(G.actor{i}.pose);
             rectangle('Position', [pos(1)-r, pos(2)-r, r*2, r*2], 'Curvature', [1 1],'linewidth',0.9,'linestyle','-','edgecolor',[0.5,0.5,0.5]); hold on;
          end
-       %% »æÖÆÆäËûĞÅÏ¢ 
-        % »æÖÆ£ºÈºÌåÖĞĞÄ
+       %% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ 
+        % ï¿½ï¿½ï¿½Æ£ï¿½Èºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         line(flockpos(:,1),flockpos(:,2),'linestyle','-','linewidth',1.5,'color',[0,0,1]); hold on;
-        % »æÖÆ£º¸öÌåµÄ¸ĞÖª·¶Î§£¨id=2£©
+        % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½Öªï¿½ï¿½Î§ï¿½ï¿½id=2ï¿½ï¿½
         pos = G.actor{2}.pose;
-    %     rectangle('Position', [pos(1)-G.r_sense, pos(2)-G.r_sense, G.r_sense*2, G.r_sense*2], 'Curvature', [1 1],'edgecolor',[0,1,0],'linestyle','--'); hold on; %»æÖÆÄ©Ì¬·¶Î§
+    %     rectangle('Position', [pos(1)-G.r_sense, pos(2)-G.r_sense, G.r_sense*2, G.r_sense*2], 'Curvature', [1 1],'edgecolor',[0,1,0],'linestyle','--'); hold on; %ï¿½ï¿½ï¿½ï¿½Ä©Ì¬ï¿½ï¿½Î§
         pos = G.actor{2}.memory(1,[1,2]);
-        rectangle('Position', [pos(1)-G.r_sense, pos(2)-G.r_sense, G.r_sense*2, G.r_sense*2], 'Curvature', [1 1],'edgecolor',[87/255,176/255,88/255],'linewidth',1); hold on;%»æÖÆ³õÊ¼×´Ì¬·¶Î§
-        % »æÖÆ£ºpredator's traj. 
+        rectangle('Position', [pos(1)-G.r_sense, pos(2)-G.r_sense, G.r_sense*2, G.r_sense*2], 'Curvature', [1 1],'edgecolor',[87/255,176/255,88/255],'linewidth',1); hold on;%ï¿½ï¿½ï¿½Æ³ï¿½Ê¼×´Ì¬ï¿½ï¿½Î§
+        % ï¿½ï¿½ï¿½Æ£ï¿½predator's traj. 
         tailTraj = G.actor{G.hawkID}.memory(:,[1,2]);
         line(tailTraj(:,1),tailTraj(:,2),'linestyle','--','linewidth',1,'color',[206/255,60/255,53/255]); hold on;
         pos = G.actor{1}.pose;
         R_esp = max(G.R_escape);
     %     rectangle('Position', [pos(1)-R_esp, pos(2)-R_esp, R_esp*2, R_esp*2], 'Curvature', [1 1],'edgecolor',[1,0,0],'linestyle','--'); hold on;
         rectangle('Position', [pos(1)-G.R_dead, pos(2)-G.R_dead, G.R_dead*2, G.R_dead*2], 'Curvature', [1 1],'edgecolor',[206/255,60/255,53/255]); hold on;
-        % »æÖÆ£º³¡µØ±ß½ç
+        % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½Ø±ß½ï¿½
         rectangle('Position', [-2790,-2890,5380, 5680], 'Curvature', [0 0],'linewidth',2); hold on;
         rectangle('Position', [-2100,-2350,4200, 4700], 'Curvature', [0 0],'linewidth',3,'edgecolor',[5/255,74/255,145/255]); hold on;
         box on; grid on; axis equal; 
-         % »æÖÆ£º¹¥»÷³õÊ¼·½Ïò¼ıÍ·
+         % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½Í·
         pos1 = [G.actor{1}.memory(1,1) G.actor{1}.memory(1,2)];
         pos2 = (G.actor{1}.memory(1,[1,2])+G.actor{1}.memory(1,[3,4]));
         arrow(pos1,pos2,'Color',[206/255,60/255,53/255],'Length',18,'BaseAngle',45);hold on;
-        % »æÖÆ£ºÌÓ±Ü³õÊ¼·½Ïò¼ıÍ·
+        % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½Ó±Ü³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½Í·
         pos1 = [G.actor{2}.memory(1,1) G.actor{2}.memory(1,2)];
         pos2 = (G.actor{2}.memory(1,[1,2])+G.actor{2}.memory(1,[3,4]));
         arrow(pos1,pos2,'Color',[87/255,176/255,88/255],'Length',18,'BaseAngle',45);hold on;
-        % »æÖÆ£ºµ±Ç°Ê¹ÓÃÄ£ĞÍÀàĞÍ£¨mave/sfol£©ÓëÌÓÒİÊ±¼ä
+        % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½Ç°Ê¹ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½Í£ï¿½mave/sfolï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
         % annotation('textbox', [.06 .87, .1, .1],'string',G.align_type,'fontsize', 20,'color','black','edgecolor','none');hold on;
         annotation('textbox', [.14 .87, .1, .1],'string',num2str(G.sur_time),'fontsize', 20,'color','r','edgecolor','none');hold on;
     %     [trueStep] = Exps_swarmBang_predation_step(G);
         
-        % »æÖÆ£ºÍ¼×¢
+        % ç»˜åˆ¶ï¼šå›¾æ³¨
          arrow([-2500,-2650],[-2500,-2600],'Color',[87/255,176/255,88/255],'Length',15,'BaseAngle',45);hold on;
-         annotation('textbox', [.08 .05, .1, .1],'string',':ÈºÌåÌÓÒİ·½Ïò','fontsize', 13,'color','b','edgecolor','none');hold on;
+         annotation('textbox', [.08 .05, .1, .1],'string',':ç¾¤ä½“è¿åŠ¨æ–¹å‘','fontsize', 13,'color','b','edgecolor','none');hold on;
          arrow([-1000,-2650],[-1000,-2600],'Color',[206/255,60/255,53/255],'Length',13,'BaseAngle',45);hold on;
-         annotation('textbox', [.22 .05, .1, .1],'string',':²¶Ê³Õß½ø¹¥·½Ïò','fontsize', 13,'color','r','edgecolor','none');hold on;
+         annotation('textbox', [.22 .05, .1, .1],'string',':æ•é£Ÿè€…è¿›æ”»æ–¹å‘','fontsize', 13,'color','r','edgecolor','none');hold on;
          rectangle('Position', [650, -2750, 150, 150], 'Curvature', [1 1],'edgecolor',[87/255,176/255,88/255],'linewidth',1); hold on;
-         annotation('textbox', [.383 .05, .1, .1],'string',':ÈºÌå¸ĞÖª·¶Î§','fontsize', 13,'color','black','edgecolor','none');hold on;
+         annotation('textbox', [.383 .05, .1, .1],'string',':ç¾¤ä½“æ„ŸçŸ¥èŒƒå›´','fontsize', 13,'color','black','edgecolor','none');hold on;
          
-    %      %% »æÖÆ£º»úÆ÷ÈË³õÊ¼Î»ÖÃÓë¹¥»÷·½Ïò    
+    %      %% ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½Ê¼Î»ï¿½ï¿½ï¿½ë¹¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    
     %     axes(h_trajAxes_in); box on; grid on; axis equal; 
     %     for i = 1:G.maxID
     %         pos =  G.actor{i}.memory(1,[1,2]);
@@ -128,14 +132,14 @@ function drawRobotsTraj(G)
     %             hold on;
     %         end
     %     end
-    %     title('ÈºÌå³õÊ¼×´Ì¬');
-    %         % »æÖÆ£º³¡µØ±ß½ç
+    %     title('Èºï¿½ï¿½ï¿½Ê¼×´Ì¬');
+    %         % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½Ø±ß½ï¿½
     %     rectangle('Position', [-1790,-1890,3380, 3680], 'Curvature', [0 0],'linewidth',0.05); hold on;
     %     box on; grid on; axis equal; 
-    %      % »æÖÆ£º¸öÌåµÄ¸ĞÖª·¶Î§£¨id=2£©
+    %      % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½Öªï¿½ï¿½Î§ï¿½ï¿½id=2ï¿½ï¿½
     %     pos = G.actor{2}.memory(1,[1,2]);
     %     rectangle('Position', [pos(1)-G.r_sense, pos(2)-G.r_sense, G.r_sense*2, G.r_sense*2], 'Curvature', [1 1],'edgecolor',[0,1,0]); hold on;
-    %     % »æÖÆ£º¹¥»÷·½Ïò¼ıÍ·
+    %     % ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·
     %     pos1 = [G.actor{1}.memory(1,1) G.actor{1}.memory(1,2)];
     %     pos2 = (G.actor{1}.memory(1,[1,2])+G.actor{1}.memory(1,[3,4]));
     %     arrow(pos1,pos2,'Color','r','Length',13);hold on;
@@ -144,27 +148,27 @@ function drawRobotsTraj(G)
     %     pos2 = (G.actor{2}.memory(1,[1,2])+G.actor{2}.memory(1,[3,4]));
     %     arrow(pos1,pos2,'Color','g','Length',13);hold on;
         
-        % ------------- ¸¨Öú´°¿Ú ------------
-        % ÏÔÊ¾£ºÔ¤¾¯¸öÌåÊıÁ¿ÇúÏß
+        % ------------- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ------------
+        % ï¿½ï¿½Ê¾ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         axes(h_Axes1); 
         line(1:G.simStep,G.warnNum(1,:),'linestyle','-','linewidth',1); hold on;
         box on; grid on; 
         xlabel('time/step'); 
         ylabel('N_{warn}'); % ylim([0,1]);
-        % ÏÔÊ¾£ºheadingÇúÏß
+        % ï¿½ï¿½Ê¾ï¿½ï¿½headingï¿½ï¿½ï¿½ï¿½
         axes(h_Axes2);
         plot(1:G.simStep,heading); hold on;
         plot(1:G.simStep,heading(:,G.hawkID),'linewidth',1,'color',[1,0,0]); hold on;
         xlabel('steps');
         ylabel('heading(deg)');
-        % ÏÔÊ¾£ºdist2targetÇúÏß
+        % ï¿½ï¿½Ê¾ï¿½ï¿½dist2targetï¿½ï¿½ï¿½ï¿½
         axes(h_Axes3);
         plot(1:G.simStep,G.target_dist); hold on;
         xlabel('steps');
         ylabel('dist2target');
-        % ÏÔÊ¾²¶»ñÊ±¼ä
-        title(['fct(²¶»ñÊ±¼ä)=',num2str(G.sur_time),'²½']);
-        % ÏÔÊ¾£ºopÇúÏß
+        % æ˜¾ç¤ºç”Ÿå­˜æ—¶é—´
+        title(['fct(ç”Ÿå­˜æ—¶é—´)=',num2str(G.sur_time),'æ­¥']);
+        % ï¿½ï¿½Ê¾ï¿½ï¿½opï¿½ï¿½ï¿½ï¿½
         axes(h_opAxes); 
         box on; grid on; xlabel('time/step'); ylabel('op'); ylim([0,1]);
         line(1:G.simStep,G.op(1,:),'linestyle','-','linewidth',1); hold on;

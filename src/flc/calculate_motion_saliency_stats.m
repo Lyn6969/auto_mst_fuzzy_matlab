@@ -28,4 +28,7 @@ function [avg_mj, var_mj] = calculate_motion_saliency_stats(focal_agent, neighbo
     % 计算均值和方差
     avg_mj = mean(cj_values);
     var_mj = var(cj_values);
+
+    % 应用对数变换来抑制极端值并稳定方差
+    var_mj = log(1 + var_mj);
 end

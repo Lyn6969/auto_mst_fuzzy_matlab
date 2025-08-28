@@ -17,6 +17,7 @@ function [desiredTurnAngle,desiredSpeed,G] = algo_mst_ce_flc(G)
         G.flc_data.p_i = zeros(G.maxSimSteps, G.maxID);
         G.flc_data.avg_mj = zeros(G.maxSimSteps, G.maxID);
         G.flc_data.var_mj = zeros(G.maxSimSteps, G.maxID);
+        G.flc_data.var_mj_raw = zeros(G.maxSimSteps, G.maxID); % 新增：用于存储原始方差
         G.flc_data.delta_c = zeros(G.maxSimSteps, G.maxID);
         % 添加运动显著性范围数据
         G.flc_data.ms_min = zeros(G.maxSimSteps, G.maxID);  % 运动显著性最小值
@@ -53,6 +54,11 @@ function [desiredTurnAngle,desiredSpeed,G] = algo_mst_ce_flc(G)
             
             % 计算FLC输入变量
             p_i = calculate_local_polarization(G.actor{i}, neighbors);
+
+            % 新增：手动计算并记录原始方差
+            raw_cj_values = get_candidate_neighbors(G.actor{i}.id, neighbors, G);
+            G.flc_data.var_mj_raw(G.simStep, i) = var(raw_cj_values);
+
             [avg_mj, var_mj] = calculate_motion_saliency_stats(G.actor{i}, neighbors, G);
             inputs = [p_i, avg_mj, var_mj];
 
@@ -129,6 +135,7 @@ function [desiredTurnAngle,desiredSpeed,G] = algo_mst_ce_flc(G)
             G.flc_data.p_i(G.simStep, i) = 0;
             G.flc_data.avg_mj(G.simStep, i) = 0;
             G.flc_data.var_mj(G.simStep, i) = 0;
+            G.flc_data.var_mj_raw(G.simStep, i) = 0; % 新增
             G.flc_data.delta_c(G.simStep, i) = 0;
             G.flc_data.ms_min(G.simStep, i) = 0;
             G.flc_data.ms_max(G.simStep, i) = 0;

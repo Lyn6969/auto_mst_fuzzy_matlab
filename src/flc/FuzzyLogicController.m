@@ -11,8 +11,8 @@ classdef FuzzyLogicController < handle
     methods
         function obj = FuzzyLogicController(c_min, c_max)
             % 构造函数
-            if nargin < 1, c_min = 0.0; end
-            if nargin < 2, c_max = 30.0; end
+            if nargin < 1, c_min = 0.01; end
+            if nargin < 2, c_max = 25.0; end
             
             obj.c_min = c_min;
             obj.c_max = c_max;
@@ -38,15 +38,16 @@ classdef FuzzyLogicController < handle
             
             % 添加输入变量2: 邻域运动显著性均值 avg(M_j) [0, 20] (基于实际数据分布调整)
             fis = addInput(fis, [0 20], 'Name', 'avg_Mj');
-            fis = addMF(fis, 'avg_Mj', 'trapmf', [0 0 3 8], 'Name', 'Low');
-            fis = addMF(fis, 'avg_Mj', 'trimf', [5 10 15], 'Name', 'Medium');
-            fis = addMF(fis, 'avg_Mj', 'trapmf', [12 15 20 20], 'Name', 'High');
+            % 降低了avg_Mj的隶属度函数边界，使其对较小的运动显著性更加敏感
+            fis = addMF(fis, 'avg_Mj', 'trapmf', [0 0 1 2], 'Name', 'Low');
+            fis = addMF(fis, 'avg_Mj', 'trimf', [1.5 3 6], 'Name', 'Medium');
+            fis = addMF(fis, 'avg_Mj', 'trapmf', [5 7 20 20], 'Name', 'High');
             
-            % 添加输入变量3: 邻域运动显著性方差 var(M_j) [0, 100] (基于实际数据分布调整)
-            fis = addInput(fis, [0 100], 'Name', 'var_Mj');
-            fis = addMF(fis, 'var_Mj', 'trapmf', [0 0 15 30], 'Name', 'Low');
-            fis = addMF(fis, 'var_Mj', 'trimf', [20 50 70], 'Name', 'Medium');
-            fis = addMF(fis, 'var_Mj', 'trapmf', [60 80 100 100], 'Name', 'High');
+            % 添加输入变量3: 邻域运动显著性方差 var(M_j) [0, 5] (基于实际数据分布调整)
+            fis = addInput(fis, [0 5], 'Name', 'var_Mj');
+            fis = addMF(fis, 'var_Mj', 'trapmf', [0 0 0.5 1.5], 'Name', 'Low');
+            fis = addMF(fis, 'var_Mj', 'trimf', [1.0 2.5 4.0], 'Name', 'Medium');
+            fis = addMF(fis, 'var_Mj', 'trapmf', [3.0 4.0 5 5], 'Name', 'High');
             
             % 添加输出变量: 阈值变化量 ΔC [-5, 5]
             fis = addOutput(fis, [-5 5], 'Name', 'delta_C');
@@ -61,8 +62,8 @@ classdef FuzzyLogicController < handle
             % 向模糊推理系统添加27条模糊规则
             rules = [
                 % 第一部分：当 p_i is Low (邻里混乱)
-                1 1 1 4 1 1;  % 规则1.1.1: Low Low Low -> IS
-                1 1 2 3 1 1;  % 规则1.1.2: Low Low Medium -> ZE
+                1 1 1 5 1 1;  % 规则1.1.1: Low Low Low -> IL (大幅提高阈值，让群体快速稳定)
+                1 1 2 2 1 1;  % 规则1.1.2: Low Low Medium -> DS (小幅减小阈值，提高敏感性)
                 1 1 3 2 1 1;  % 规则1.1.3: Low Low High -> DS
                 1 2 1 2 1 1;  % 规则1.2.1: Low Medium Low -> DS
                 1 2 2 2 1 1;  % 规则1.2.2: Low Medium Medium -> DS
@@ -112,8 +113,8 @@ classdef FuzzyLogicController < handle
             % avg_Mj: [0, 20]
             clamped_inputs(2) = max(0, min(inputs(2), 20));
 
-            % var_Mj: [0, 100]
-            clamped_inputs(3) = max(0, min(inputs(3), 100));
+            % var_Mj: [0, 5]
+            clamped_inputs(3) = max(0, min(inputs(3), 5));
 
             % 记录越界情况（用于调试）
             if any(inputs ~= clamped_inputs)

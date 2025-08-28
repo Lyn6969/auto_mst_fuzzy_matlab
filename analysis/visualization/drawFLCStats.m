@@ -132,4 +132,111 @@ function drawFLCStats(G)
     fprintf('平均阈值变化量: %.3f\n', mean(abs(mean_delta_c)));
     fprintf('总激活次数: %d\n', sum(activation_count));
     fprintf('==================\n\n');
+    
+    % 保存FLC统计数据为CSV文件
+    save_flc_data_to_csv(G, valid_steps, preyList);
+end
+
+function save_flc_data_to_csv(G, valid_steps, preyList)
+    % 保存FLC相关数据到CSV文件
+    
+    % 创建保存目录
+    csv_dir = './Data_Sim/csv_exports/';
+    if ~exist(csv_dir, 'dir')
+        mkdir(csv_dir);
+    end
+    
+    % 生成带时间戳的文件名
+    timeStamp = datetime('now','Format','yyyyMMdd''T''HHmmss');
+    base_filename = sprintf('FLC_Stats_%s', string(timeStamp));
+    
+    % 1. 保存整体统计数据（时间序列）
+    overall_data = [];
+    overall_data(:,1) = valid_steps';  % 时间步
+    overall_data(:,2) = mean(G.flc_data.thresholds(valid_steps, preyList), 2);  % 平均阈值
+    overall_data(:,3) = mean(G.flc_data.p_i(valid_steps, preyList), 2);        % 平均局部有序度
+    overall_data(:,4) = mean(G.flc_data.avg_mj(valid_steps, preyList), 2);     % 平均运动显著性均值
+    overall_data(:,5) = mean(G.flc_data.var_mj(valid_steps, preyList), 2);     % 平均运动显著性方差
+    overall_data(:,6) = mean(G.flc_data.delta_c(valid_steps, preyList), 2);    % 平均阈值变化量
+    
+    % 添加激活个体数量（如果存在）
+    if isfield(G, 'activatedCount') && length(G.activatedCount) >= max(valid_steps)
+        overall_data(:,7) = G.activatedCount(valid_steps)';
+    else
+        overall_data(:,7) = zeros(length(valid_steps), 1);
+    end
+    
+    % 写入整体统计CSV
+    overall_filename = [csv_dir base_filename '_overall.csv'];
+    overall_headers = {'TimeStep', 'MeanThreshold', 'MeanLocalPolarization', ...
+                      'MeanMotionSaliencyAvg', 'MeanMotionSaliencyVar', ...
+                      'MeanDeltaC', 'ActivatedCount'};
+    
+    writecell([overall_headers; num2cell(overall_data)], overall_filename);
+    fprintf('已保存整体FLC统计数据到: %s\n', overall_filename);
+    
+    % 2. 保存每个个体的详细数据（仅保存关键时间点以控制文件大小）
+    sample_interval = max(1, floor(G.simStep / 100));  % 最多采样100个时间点
+    sample_steps = 1:sample_interval:G.simStep;
+    
+    individual_data = [];
+    row_idx = 1;
+    
+    for t_idx = 1:length(sample_steps)
+        t = sample_steps(t_idx);
+        for robot_idx = 1:length(preyList)
+            robot_id = preyList(robot_idx);
+            
+            individual_data(row_idx, 1) = t;                                    % 时间步
+            individual_data(row_idx, 2) = robot_id;                             % 机器人ID
+            individual_data(row_idx, 3) = G.flc_data.thresholds(t, robot_id);   % 阈值
+            individual_data(row_idx, 4) = G.flc_data.p_i(t, robot_id);          % 局部有序度
+            individual_data(row_idx, 5) = G.flc_data.avg_mj(t, robot_id);       % 运动显著性均值
+            individual_data(row_idx, 6) = G.flc_data.var_mj(t, robot_id);       % 运动显著性方差
+            individual_data(row_idx, 7) = G.flc_data.delta_c(t, robot_id);      % 阈值变化量
+            individual_data(row_idx, 8) = G.flc_data.ms_min(t, robot_id);       % 运动显著性最小值
+            individual_data(row_idx, 9) = G.flc_data.ms_max(t, robot_id);       % 运动显著性最大值
+            individual_data(row_idx, 10) = G.flc_data.ms_range(t, robot_id);    % 运动显著性范围
+            individual_data(row_idx, 11) = G.flc_data.ms_count(t, robot_id);    % 邻居数量
+            
+            row_idx = row_idx + 1;
+        end
+    end
+    
+    % 写入个体详细数据CSV
+    individual_filename = [csv_dir base_filename '_individual.csv'];
+    individual_headers = {'TimeStep', 'RobotID', 'Threshold', 'LocalPolarization', ...
+                         'MotionSaliencyAvg', 'MotionSaliencyVar', 'DeltaC', ...
+                         'MSMin', 'MSMax', 'MSRange', 'NeighborCount'};
+    
+    writecell([individual_headers; num2cell(individual_data)], individual_filename);
+    fprintf('已保存个体详细FLC数据到: %s\n', individual_filename);
+    
+    % 3. 保存实验参数摘要
+    params_filename = [csv_dir base_filename '_parameters.csv'];
+    params_data = {
+        'Parameter', 'Value';
+        'SimulationSteps', G.simStep;
+        'RobotCount', length(preyList);
+        'InitialThreshold', G.cj_threshold;
+        'WeightAlign', G.weight_align;
+        'WeightRep', G.weight_rep;
+        'WeightAtt', G.weight_att;
+        'WeightCJ', G.weight_cj;
+        'DeactivationThreshold', G.deac_threshold;
+        'MaxNeighbors', G.max_neighbors;
+        'WeightEscape', G.weight_esc;
+        'HawkID', G.hawkID;
+        'DeadRadius', G.R_dead;
+        'HawkSpeed', G.v0_hawk;
+        'CycleTime', G.cycTime;
+        'RobotSpeed', G.v0;
+        'MaxRotationRate', G.maxRotRate;
+        'SenseRadius', G.r_sense
+    };
+    
+    writecell(params_data, params_filename);
+    fprintf('已保存实验参数到: %s\n', params_filename);
+    
+    fprintf('\n所有FLC数据已成功导出到CSV格式！\n');
 end

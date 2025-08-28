@@ -31,7 +31,7 @@ G.weight_rep = 8;              % 位置协同中排斥项的权重
 G.weight_att = 0.01;           % 位置协同中吸引项的权重：0=无吸引作用
 G.cj_threshold = 0.01;            % 初始ms阈值（将被FLC动态调整）
 G.weight_cj = 100;             % cj的尺度
-G.deac_threshold = 0.2;        % 取消激活阈值
+G.deac_threshold = 0.1;        % 取消激活阈值
 G.noise_mov = 0;               % 运动噪声0/0.1
 G.max_neighbors = 7;           % 拓扑交互个体数目
 
@@ -68,6 +68,7 @@ for t = 1:G.maxSimSteps
 end
 
 
+
 %% 绘制仿真结果图
 warnTime = find(G.warnNum == 1);
 G.sur_time = G.simStep - warnTime(1,1);
@@ -83,7 +84,6 @@ fprintf('绘制运动显著性统计图...\n');
 drawMotionSaliencyStats(G);
 
 %%  保存仿真数据
-
 savefileDir = "./Data_Sim/ce/" + dateString;
 if ~exist(savefileDir, 'dir')
     mkdir(savefileDir);
